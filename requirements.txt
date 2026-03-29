@@ -5,3 +5,5 @@ matplotlib
 scikit-learn
 missingno
 flask
+gunicorn
+joblib

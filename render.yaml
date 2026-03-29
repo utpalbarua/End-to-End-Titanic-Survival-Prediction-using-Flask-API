@@ -1,0 +1,21 @@
+# render.yaml — Render deployment configuration
+# Docs: https://render.com/docs/infrastructure-as-code
+
+services:
+  - type: web
+    name: titanic-survival-predictor
+    runtime: python
+    region: oregon
+    plan: free
+
+    buildCommand: |
+      pip install -r requirements.txt
+      cd notebook && python titanic_model.py
+
+    startCommand: gunicorn app:app --workers 2 --bind 0.0.0.0:$PORT --timeout 60
+
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: FLASK_ENV
+        value: production

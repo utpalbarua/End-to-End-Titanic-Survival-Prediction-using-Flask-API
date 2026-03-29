@@ -12,23 +12,23 @@ import joblib
 import pandas as pd
 from flask import Flask, request, jsonify, render_template
 
-# ── App setup
+# ── App setup ────────────────────────────────────────────────────────────────
 app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# ── Feature constants (must match training) 
+# ── Feature constants (must match training) ──────────────────────────────────
 NUMERIC_FEATURES     = ['Age', 'Fare', 'FamilySize', 'SibSp', 'Parch']
 CATEGORICAL_FEATURES = ['Sex', 'Embarked', 'Title', 'Pclass']
 ALL_FEATURES         = NUMERIC_FEATURES + CATEGORICAL_FEATURES
 
 VALID_SEX      = {'male', 'female'}
 VALID_EMBARKED = {'S', 'C', 'Q'}
-VALID_TITLE    = {'Mrs', 'Miss', 'Rare'}
+VALID_TITLE    = {'Mr', 'Mrs', 'Miss', 'Master', 'Rare'}
 VALID_PCLASS   = {1, 2, 3}
 
-# ── Load model once at startup
-MODEL_PATH = 'C:/Users/lenovo/OneDrive/Desktop/Titanic_Survival_Prediction/model/model.pkl'
+# ── Load model once at startup ────────────────────────────────────────────────
+MODEL_PATH = os.path.join(os.path.dirname(__file__), 'model.pkl')
 
 try:
     model = joblib.load(MODEL_PATH)
@@ -38,7 +38,7 @@ except FileNotFoundError:
     logger.warning("model.pkl not found — run notebook/titanic_model.py first")
 
 
-# ── Helper: engineer features from raw input 
+# ── Helper: engineer features from raw input ─────────────────────────────────
 def prepare_input(data: dict) -> pd.DataFrame:
     """
     Accepts raw passenger dict, derives FamilySize if not provided,
@@ -52,7 +52,7 @@ def prepare_input(data: dict) -> pd.DataFrame:
     row['SibSp']      = int(data.get('SibSp', 0))
     row['Parch']      = int(data.get('Parch', 0))
     row['FamilySize'] = int(data.get('FamilySize',
-    row['SibSp'] + row['Parch'] + 1))
+                                     row['SibSp'] + row['Parch'] + 1))
 
     # Categorical
     row['Sex']      = str(data.get('Sex', 'male')).lower()
@@ -63,7 +63,7 @@ def prepare_input(data: dict) -> pd.DataFrame:
     return pd.DataFrame([row])[ALL_FEATURES]
 
 
-# ── Input validation
+# ── Input validation ──────────────────────────────────────────────────────────
 def validate_input(data: dict) -> list[str]:
     errors = []
 
@@ -106,7 +106,7 @@ def validate_input(data: dict) -> list[str]:
     return errors
 
 
-# ── Routes
+# ── Routes ────────────────────────────────────────────────────────────────────
 @app.route('/')
 def index():
     return render_template('index.html')
